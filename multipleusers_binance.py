@@ -85,7 +85,7 @@ symbol = ['ADA/USDT','BTC/USDT','ETH/USDT']
 i=0
 for key,value in aips.api.items():
     print(key)
-    t1 = threading.Thread(target=binance.PLACEORDER,args=(symbol[i],key,value))
-    i+=1
-    t1.start()
-    threads.append(t1)
+    for i in range(len(symbol)):
+        t1 = threading.Thread(target=binance.PLACEORDER,args=(symbol[i],key,value))
+        t1.start()
+        threads.append(t1)

@@ -1,3 +1,9 @@
+# personal
 # api={"bwXkmttoayo7mJ7AmP27c59CwJEFXkuWJdLrpiHgG5WnwAvXk4Xl03SZdavSayGH":"frk101OhPLsxiKzj1411VOOnAH0TMsTHFbPmqgpY9LqZEcL2rFPVWPr8XsbLeVaF"}
-key ="bwXkmttoayo7mJ7AmP27c59CwJEFXkuWJdLrpiHgG5WnwAvXk4Xl03SZdavSayGH"
-secret="frk101OhPLsxiKzj1411VOOnAH0TMsTHFbPmqgpY9LqZEcL2rFPVWPr8XsbLeVaF"
+# key ="bwXkmttoayo7mJ7AmP27c59CwJEFXkuWJdLrpiHgG5WnwAvXk4Xl03SZdavSayGH"
+# secret="frk101OhPLsxiKzj1411VOOnAH0TMsTHFbPmqgpY9LqZEcL2rFPVWPr8XsbLeVaF"
+
+# sir
+api={"api : XdhYyBBtvTJqexhvJXmw8YQH4b8RpmWOxNoskT7reTcbAjsQ9vbfTczjZKsU1F3r":"xytjBEzxmQHVUiworR0rcBlpSKpMvuBH8CYieEYpQdizXICzuAZr4nbQKjNIJLSD"}
+key = "XdhYyBBtvTJqexhvJXmw8YQH4b8RpmWOxNoskT7reTcbAjsQ9vbfTczjZKsU1F3r"
+sec = "xytjBEzxmQHVUiworR0rcBlpSKpMvuBH8CYieEYpQdizXICzuAZr4nbQKjNIJLSD"
