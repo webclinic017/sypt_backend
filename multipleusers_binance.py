@@ -49,7 +49,13 @@ class binance():
                     if usdt_used==0:
                         break
                     else:
-                        continue
+                        time.sleep(300) 
+                        buyprice,sellprice=binance.ohlcv(KEY,SECRET)
+                        if buyprice<float(buy['price']):
+                            cancel=exchange.cancel_all_orders(symbol)
+                            buy=exchange.create_order(symbol,'limit','buy',buy_amount,buyprice)
+                        elif buyprice==float(buy['price']):
+                            continue
                 position = True
                 buyID=int(buy['info']['orderId'])
                 side="buy"
