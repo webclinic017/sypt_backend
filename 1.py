@@ -8,3 +8,4 @@ exchange=ccxt.binance({
 })
 
 print(exchange.fetch_balance()['USDT'])
+# print(exchange.fetch_my_trades('ETH'))
