@@ -9,7 +9,7 @@ import aips
 import concurrent.futures
 
 
-symbol = 'ADA/USDT'
+
 class binance():
     def exchange(KEY,SECRET):
         exchange = ccxt.binance({
@@ -19,7 +19,7 @@ class binance():
         })
         return exchange
     
-    def ohlcv(KEY,SECRET):
+    def ohlcv(symbol,KEY,SECRET):
         exchange=binance.exchange(KEY,SECRET)
         bars=exchange.fetch_ohlcv(symbol,timeframe = '1h',limit = 5)
         df=pd.DataFrame(bars[:-1], columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
@@ -34,13 +34,13 @@ class binance():
             writer = csv.writer(f)
             writer.writerow(data)
 
-    def PLACEORDER(KEY,SECRET):
+    def PLACEORDER(symbol,KEY,SECRET):
         exchange=binance.exchange(KEY,SECRET)
         buy_amount=11
         position = False
         n=10
         for i in range(n*2):
-            buyprice,sellprice=binance.ohlcv(KEY,SECRET)
+            buyprice,sellprice=binance.ohlcv(symbol,KEY,SECRET)
             if not position :
                 buy=exchange.create_order(symbol,'limit','buy',buy_amount,buyprice)
                 while True:
@@ -50,7 +50,7 @@ class binance():
                         break
                     else:
                         time.sleep(300) 
-                        buyprice,sellprice=binance.ohlcv(KEY,SECRET)
+                        buyprice,sellprice=binance.ohlcv(symbol,KEY,SECRET)
                         if buyprice<float(buy['price']):
                             cancel=exchange.cancel_all_orders(symbol)
                             buy=exchange.create_order(symbol,'limit','buy',buy_amount,buyprice)
@@ -69,7 +69,7 @@ class binance():
                 sellID=int(sell['info']['orderId'])
                 time.sleep(3600)
                 while True:
-                    buyprice,sellprice=binance.ohlcv(KEY,SECRET)
+                    buyprice,sellprice=binance.ohlcv(symbol,KEY,SECRET)
                     ada_balance=exchange.fetch_balance()['ADA']
                     ada_used=int(ada_balance['used'])
                     if ada_used==0:
@@ -91,8 +91,11 @@ class binance():
                 print(sellID,side,position,sellprice)
                         
 threads = []
+symbol = ['ADA/USDT','BTC/USDT','ETH/USDT']
+i=0
 for key,value in aips.api.items():
     print(key)
-    t1 = threading.Thread(target=binance.PLACEORDER,args=(key,value))
+    t1 = threading.Thread(target=binance.PLACEORDER,args=(symbol[i],key,value))
+    i+=1
     t1.start()
     threads.append(t1)
