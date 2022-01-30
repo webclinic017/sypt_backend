@@ -3,12 +3,9 @@ import ccxt
 import pandas as pd
 import math
 import time
-import csv
 import threading
 import aips
 import concurrent.futures
-
-
 
 class binance():
     def exchange(KEY,SECRET):
@@ -27,12 +24,6 @@ class binance():
         sellprice=df['low'][lastindex]*0.99
         buyprice=df['high'][lastindex]*1.05
         return buyprice,sellprice
-
-    def csv(id,side,position,price):
-        data=[id,side,position,price]
-        with open('user_details.csv', 'w', encoding='UTF8') as f:
-            writer = csv.writer(f)
-            writer.writerow(data)
 
     def PLACEORDER(symbol,KEY,SECRET):
         exchange=binance.exchange(KEY,SECRET)
@@ -81,7 +72,6 @@ class binance():
                             cancelID=int(cancel['info']['orderId'])
 
                             side="cancel"
-                            binance.csv(cancelID,side,position,sellprice)
                             newsell=exchange.create_order(symbol,'limit','sell',sell_amount,sellprice)
                             # newsell=exchange.create_order(symbol,'stop_loss_limit','sell',sell_amount,sellprice,{'stopPrice':sellprice})
                             sellID=int(newsell['info']['orderId'])
