@@ -24,18 +24,17 @@ class binance():
     def ohlcv(symbol,KEY,SECRET):
         usdt_amount=11
         exchange=binance.exchange(KEY,SECRET)
-        bars=exchange.fetch_ohlcv(symbol,timeframe = '5m',limit = 5)
+        bars=exchange.fetch_ohlcv(symbol,timeframe='15m',limit=5)
         df=pd.DataFrame(bars[:-1], columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
         lastindex=len(df.index)-1
-        sellprice=float(df['high'][lastindex])*1.05
-        buyprice=float(df['low'][lastindex])*0.98
+        buyprice=float(df['low'][lastindex])
+        sellprice=float(df['high'][lastindex])
         close=float(df['close'][lastindex])
-        symbol_amount=float(close/usdt_amount)
+        symbol_amount=float(usdt_amount/close)
         return buyprice,sellprice,symbol_amount
 
     def PLACEORDER(symbol,KEY,SECRET):
         exchange=binance.exchange(KEY,SECRET)
-        buy_amount=11
         position = False
         n=5
         for i in range(n*2):
@@ -44,12 +43,11 @@ class binance():
                 buy=exchange.create_limit_buy_order(symbol,symbol_amount,buyprice)
                 while True:
                     balance=exchange.fetch_balance()['USDT']
-                    print(symbol+' '+str(balance))
                     usdt_used=balance['used']
                     if usdt_used==0:
                         break
                     else:
-                        time.sleep(60) 
+                        time.sleep(300) 
                         buyprice,sellprice,symbol_amount=binance.ohlcv(symbol,KEY,SECRET)
                         if buyprice<float(buy['price']):
                             buyIDtocancel=int(buy['info']['orderId'])
@@ -70,7 +68,7 @@ class binance():
                 sell_amount=math.floor(symbol_free)
                 sell=exchange.create_limit_sell_order(symbol,sell_amount,sellprice)
                 sellID=int(sell['info']['orderId'])
-                time.sleep(300)
+                time.sleep(900)
                 while True:
                     buyprice,sellprice,symbol_amount=binance.ohlcv(symbol,KEY,SECRET)
                     symbol_balance=exchange.fetch_balance()[symbol.split('/')[0]]
