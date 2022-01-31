@@ -36,6 +36,7 @@ class binance():
         return buyprice,sellprice,symbol_amount
 
     def PLACEORDER(symbol,KEY,SECRET):
+        time.sleep(5)
         exchange=binance.exchange(KEY,SECRET)
         position = False
         n=5
@@ -44,8 +45,6 @@ class binance():
             if not position :
                 buy=exchange.create_limit_buy_order(symbol,symbol_amount,buyprice)
                 while True:
-                    balance=exchange.fetch_balance()[symbol.split('/')[1]]
-                    usdt_used=balance['used']
                     filled=float(buy['filled'])
                     if filled!=0:
                         break
