@@ -22,13 +22,16 @@ class binance():
         return exchange
     
     def ohlcv(symbol,KEY,SECRET):
+        usdt_amount=11
         exchange=binance.exchange(KEY,SECRET)
         bars=exchange.fetch_ohlcv(symbol,timeframe = '5m',limit = 5)
         df=pd.DataFrame(bars[:-1], columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
         lastindex=len(df.index)-1
         sellprice=float(df['high'][lastindex])*1.05
         buyprice=float(df['low'][lastindex])*0.98
-        return buyprice,sellprice
+        close=float(df['close'][lastindex])
+        symbol_amount=float(close/usdt_amount)
+        return buyprice,sellprice,symbol_amount
 
     def PLACEORDER(symbol,KEY,SECRET):
         exchange=binance.exchange(KEY,SECRET)
@@ -36,20 +39,22 @@ class binance():
         position = False
         n=5
         for i in range(n*2):
-            buyprice,sellprice=binance.ohlcv(symbol,KEY,SECRET)
+            buyprice,sellprice,symbol_amount=binance.ohlcv(symbol,KEY,SECRET)
             if not position :
-                buy=exchange.create_order(symbol,'limit','buy',buy_amount,buyprice)
+                buy=exchange.create_limit_buy_order(symbol,symbol_amount,buyprice)
                 while True:
                     balance=exchange.fetch_balance()['USDT']
+                    print(symbol+' '+str(balance))
                     usdt_used=balance['used']
                     if usdt_used==0:
                         break
                     else:
                         time.sleep(60) 
-                        buyprice,sellprice=binance.ohlcv(symbol,KEY,SECRET)
+                        buyprice,sellprice,symbol_amount=binance.ohlcv(symbol,KEY,SECRET)
                         if buyprice<float(buy['price']):
-                            cancel=exchange.cancel_all_orders(symbol)
-                            buy=exchange.create_order(symbol,'limit','buy',buy_amount,buyprice)
+                            buyIDtocancel=int(buy['info']['orderId'])
+                            cancel=exchange.cancel_order(buyIDtocancel,symbol)
+                            buy=exchange.create_limit_buy_order(symbol,symbol_amount,buyprice)
                         elif buyprice==float(buy['price']):
                             continue
                 position = True
@@ -60,28 +65,28 @@ class binance():
                 binance.discord(KEY,SECRET,symbol,side,buyprice,timestamp,buyID)
 
             elif position:
-                ada_balance=exchange.fetch_balance()['ADA']
-                ada_free=float(ada_balance['free'])
-                sell_amount=math.floor(ada_free)
-                sell=exchange.create_order(symbol,'limit','sell',sell_amount,sellprice)
+                symbol_balance=exchange.fetch_balance()[symbol.split('/')[0]]
+                symbol_free=float(symbol_balance['free'])
+                sell_amount=math.floor(symbol_free)
+                sell=exchange.create_limit_sell_order(symbol,sell_amount,sellprice)
                 sellID=int(sell['info']['orderId'])
                 time.sleep(300)
                 while True:
-                    buyprice,sellprice=binance.ohlcv(symbol,KEY,SECRET)
-                    ada_balance=exchange.fetch_balance()['ADA']
-                    ada_used=int(ada_balance['used'])
-                    if ada_used==0:
+                    buyprice,sellprice,symbol_amount=binance.ohlcv(symbol,KEY,SECRET)
+                    symbol_balance=exchange.fetch_balance()[symbol.split('/')[0]]
+                    symbol_used=int(symbol_balance['used'])
+                    if symbol_used==0:
                         break
-                    else :
-                        if sellprice>float(sell['price']):
-                            #cancel order and place new order
-                            cancel = exchange.cancel_all_orders(symbol)
-                            cancelID=int(cancel['info']['orderId'])
-                            side="cancel"
-                            newsell=exchange.create_order(symbol,'limit','sell',sell_amount,sellprice)
-                            # newsell=exchange.create_order(symbol,'stop_loss_limit','sell',sell_amount,sellprice,{'stopPrice':sellprice})
-                            sellID=int(newsell['info']['orderId'])
-                        time.sleep(300)
+                    # else :
+                    #     if sellprice>float(sell['price']):
+                    #         #cancel order and place new order
+                    #         cancel = exchange.cancel_all_orders(symbol)
+                    #         cancelID=int(cancel['info']['orderId'])
+                    #         side="cancel"
+                    #         newsell=exchange.create_order(symbol,'limit','sell',sell_amount,sellprice)
+                    #         # newsell=exchange.create_order(symbol,'stop_loss_limit','sell',sell_amount,sellprice,{'stopPrice':sellprice})
+                    #         sellID=int(newsell['info']['orderId'])
+                    #     time.sleep(300)
                 position = False
                 side="sell"
                 timestamp=sell['timestamp']
